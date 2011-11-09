@@ -1,0 +1,7 @@
+nogit*
+*.pyc
+.vimfiles.*/*
+*.vimentry
+.DS*
+quick_gen_project*.sh
+privatekeys.py
