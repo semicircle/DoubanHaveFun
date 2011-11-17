@@ -39,9 +39,9 @@ class createFromGData_MixIn:
             else:
                 if typeOfModel is StringField:
                     if hasattr(gDataObj, 'text'):
-                        setattr(modelObj, attrName, gDataObj.text)
+                        setattr(modelObj, attrName, unicode(gDataObj.text, 'utf-8'))
                     else:
-                        setattr(modelObj, attrName, gDataObj)
+                        setattr(modelObj, attrName, unicode(gDataObj, 'utf-8'))
                 if typeOfModel is IntField:
                     setattr(modelObj, attrName, int(gDataObj))
                 if typeOfModel is FloatField:
@@ -102,7 +102,7 @@ class Subject(EmbeddedDocument, createFromGData_MixIn):
         if hasattr(dbSubject, 'tags'):
             inst.tags = Tag.createListField(dbSubject.tags)
 
-class Collection(Document, createFromGData_MixIn):
+class Collection(EmbeddedDocument, createFromGData_MixIn):
     id = StringField()
     title = StringField()
     rating = Rating()
@@ -120,8 +120,9 @@ class People(Document, createFromGData_MixIn):
     uid = StringField()
     title = StringField()
     location = StringField()
-    link = StringField()
+    link = ListField(StringField())
     alterlink = StringField()
     #NOTE: this field is not from GDataObj directly.
-    #collections = ListField(Collection())
+    collections = ListField(EmbeddedDocumentField(Collection))
+
 

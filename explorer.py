@@ -114,14 +114,17 @@ def inspectEntry(entry):
 # the whole design changed from here.
 def createPeopleBasedDataSet(ds):
     me = ds.GetPeople('/people/%40me')
-    RET_SIZE_LIMIT = 10;
     friends = getFriendsOfUser(ds, 'donotpanic')
 
     final_dataset = []
 
     for peopleEntry in friends:
         peopleObj = People.createFromGData(peopleEntry)
+        user_collections = getCollectionOfUser(ds, peopleObj.uid)
+        peopleObj.collections = Collection.createListField(user_collections) 
         final_dataset.append(peopleObj)
+        #break for test reason.
+        #break
 
     return final_dataset
 
@@ -152,7 +155,8 @@ def testSuite1():
 def testSuite2():
     service = getDoubanService_priv()
     pbds = createPeopleBasedDataSet(service) #pbds stand for People-Based Dataset.:w
-    
+    for peopleObj in pbds:
+        peopleObj.save()
 
 #testSuite1()
 
