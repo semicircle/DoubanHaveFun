@@ -4,6 +4,7 @@ import douban.service
 import inspect
 import gdata
 import atom
+import time
 from model import *
 
 #use to define: API_KEY, API_SECRET, and tester's access TOKEN_KEY, TOKEN_SECRET.
@@ -62,7 +63,13 @@ def getCollectionOfUser(ds, userid, limit = 0):
     item_per_req = 50
     ret = []
     while 1:
-        rsp = ds.GetCollectionFeed(url_gen(start_index, item_per_req))
+        try:
+            rsp = ds.GetCollectionFeed(url_gen(start_index, item_per_req))
+        except err:
+            print err
+            print 'Exceeded.'
+            time.sleep(60)
+            continue
         print (`len(rsp.entry)`)
         if (len(rsp.entry) > 0):
             ret.extend(rsp.entry)
@@ -84,6 +91,7 @@ def getUserBasedDataSet(ds):
     friends = getFriendsOfUser(ds, 'donotpanic') 
     for peopleEntry in friends:
         xx_collect = getCollectionOfUser(ds, peopleEntry.uid.text, limit=RET_SIZE_LIMIT - len(ret))
+        time.sleep(2)
         ret.extend(xx_collect)
         if (len(ret) > RET_SIZE_LIMIT):
             break
