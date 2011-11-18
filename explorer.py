@@ -65,7 +65,7 @@ def getCollectionOfUser(ds, userid, limit = 0):
     while 1:
         try:
             rsp = ds.GetCollectionFeed(url_gen(start_index, item_per_req))
-        except err:
+        except Exception as err:
             print err
             print 'Exceeded.'
             time.sleep(60)
@@ -91,7 +91,7 @@ def getUserBasedDataSet(ds):
     friends = getFriendsOfUser(ds, 'donotpanic') 
     for peopleEntry in friends:
         xx_collect = getCollectionOfUser(ds, peopleEntry.uid.text, limit=RET_SIZE_LIMIT - len(ret))
-        time.sleep(2)
+        time.sleep(5)
         ret.extend(xx_collect)
         if (len(ret) > RET_SIZE_LIMIT):
             break
