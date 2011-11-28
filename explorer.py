@@ -68,16 +68,18 @@ def getCollectionOfUser(ds, userid, limit = 0):
         except Exception as err:
             print err
             print 'Exceeded.'
-            time.sleep(60)
+            time.sleep(300)
             continue
         print (`len(rsp.entry)`)
         if (len(rsp.entry) > 0):
             ret.extend(rsp.entry)
         else:
-            break;
+            break
         start_index += item_per_req
         if (limit != 0) and (len(ret) > limit):
-            break;
+            break
+        #api exceed protect,
+        time.sleep(2)
     print("".join(["user: ", `userid`, "'s collection: ", `len(ret)`]))
     return ret
 
@@ -91,7 +93,6 @@ def getUserBasedDataSet(ds):
     friends = getFriendsOfUser(ds, 'donotpanic') 
     for peopleEntry in friends:
         xx_collect = getCollectionOfUser(ds, peopleEntry.uid.text, limit=RET_SIZE_LIMIT - len(ret))
-        time.sleep(5)
         ret.extend(xx_collect)
         if (len(ret) > RET_SIZE_LIMIT):
             break
@@ -128,13 +129,22 @@ def createPeopleBasedDataSet(ds):
 
     for peopleEntry in friends:
         peopleObj = People.createFromGData(peopleEntry)
-        user_collections = getCollectionOfUser(ds, peopleObj.uid)
-        peopleObj.collections = Collection.createListField(user_collections) 
-        final_dataset.append(peopleObj)
-        #break for test reason.
-        #break
+        user_collections = getCollectionOfUser(ds, peopleObj.uid)#, limit=49)
+        model_collections = []
+        for item in user_collections:
+            collection = Collection.createFromGData(item)
+            subject = Subject.createFromGData(item.subject)
+            subject.save()
+            collection.subject = subject
+            collection.save()
+            model_collections.append(collection)
+        peopleObj.collections = model_collections
+        peopleObj.save()
 
-    return final_dataset
+        #break for test reason.
+        #if len(collection) != 0:
+        #    break
+    return 
 
 
 def testSuite1():
@@ -162,9 +172,9 @@ def testSuite1():
 
 def testSuite2():
     service = getDoubanService_priv()
-    pbds = createPeopleBasedDataSet(service) #pbds stand for People-Based Dataset.:w
-    for peopleObj in pbds:
-        peopleObj.save()
+    createPeopleBasedDataSet(service) #pbds stand for People-Based Dataset.:w
+    #for peopleObj in pbds:
+    #    peopleObj.save()
 
 #testSuite1()
 

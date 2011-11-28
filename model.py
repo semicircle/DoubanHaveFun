@@ -86,11 +86,11 @@ class Rating(EmbeddedDocument, createFromGData_MixIn):
     average = FloatField()
     value = FloatField() 
 
-class Subject(EmbeddedDocument, createFromGData_MixIn):
+class Subject(Document, createFromGData_MixIn):
     title = StringField()
-    id = StringField()
+    id = StringField(primary_key=True)
     #for numbers with point.
-    rating = Rating() 
+    rating = EmbeddedDocumentField(Rating)
     #author is a vaild field in douban's data model, but api didn't give us the detail.
     author = ListField(StringField())
     #tag is a valid field.
@@ -98,31 +98,33 @@ class Subject(EmbeddedDocument, createFromGData_MixIn):
 
     @classmethod
     def _fillSpecialAttr(cls, inst, dbSubject):
-        inst.Rating = Rating.createFromGData(dbSubject.rating)
+        inst.rating = Rating.createFromGData(dbSubject.rating)
         if hasattr(dbSubject, 'tags'):
             inst.tags = Tag.createListField(dbSubject.tags)
 
-class Collection(EmbeddedDocument, createFromGData_MixIn):
-    id = StringField()
+class Collection(Document, createFromGData_MixIn):
+    #relationship, this two fields will not be generate from the gdata.
+    subject = ReferenceField(Subject)
+    user = ReferenceField('People') 
+    #info
+    id = StringField(primary_key=True)
     title = StringField()
-    rating = Rating()
+    rating = EmbeddedDocumentField(Rating)
     status = StringField()
     tags = ListField(EmbeddedDocumentField(Tag))
-    subject = Subject()
 
     @classmethod
     def _fillSpecialAttr(cls, inst, dbThing):
-        inst.Rating = Rating.createFromGData(dbThing.rating)
-        inst.Subject = Subject.createFromGData(dbThing.subject)
+        inst.rating = Rating.createFromGData(dbThing.rating)
+        #inst.subject = Subject.createFromGData(dbThing.subject)
         inst.tags = Tag.createListField(dbThing.tags)
 
 class People(Document, createFromGData_MixIn):
-    uid = StringField()
+    uid = StringField(primary_key=True)
     title = StringField()
     location = StringField()
     link = ListField(StringField())
     alterlink = StringField()
     #NOTE: this field is not from GDataObj directly.
-    collections = ListField(EmbeddedDocumentField(Collection))
-
+    collections = ListField(ReferenceField(Collection))
 
