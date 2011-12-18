@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Plan Detail Configurations</title>
+</head>
+<body>
+<div>Plan - {{plan.PlanName}}</div>
+<div>Steps: </div>
+{% comment %} 
+1. List all the steps of the plan
+- each step is a table. (for table is suit for the presantation of a step's data model)
+<div id='div_steps'>
+{% endcomment %}
+{% for step in plan.Steps %}
+<div> <strong>STEP{{forloop.counter}}: {{ step.ProgressName }}</strong> </div>
+<div> 
+<table>
+{% for key,value in step.items %}
+<tr>
+<td>{{key}}</td>
+<td>{{value}}</td>
+</tr>
+{% endfor %}
+</table><br/>
+</div>
+{% empty %}
+<div>The step-set is empty.</div>
+{% endfor %}
+</div>
+
+{% if add_step_form %}
+<div id='div_add_step'>
+<form action='/plan_detail/{{plan.PlanName}}/' method='post'> {% csrf_token %}
+{{ add_step_form.as_p }}
+<input type='submit' value='Add' />
+</div>
+{% endif %}
+
+{% if add_step_detail_form %}
+<div id='div_add_step_step'>
+<form action='/plan_detail/{{plan.PlanName}}/' method='post'> {% csrf_token %}
+{{ add_step_detail_form.as_table }}
+<input type='submit' value='Okay' />
+</div>
+{% endif %}
+
+<div>Resources: </div>
+
+</body>
+</html>

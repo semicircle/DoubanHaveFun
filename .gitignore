@@ -5,3 +5,4 @@ nogit*
 .DS*
 quick_gen_project*.sh
 privatekeys.py
+private/__init__.py

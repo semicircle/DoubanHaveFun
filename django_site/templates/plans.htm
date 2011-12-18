@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Plans</title>
+</head>
+<body>
+<div>Plans: </div>
+{% for plan in plans %}
+<div>  {{ plan.PlanName }} <a href='/plan_detail/{{plan.PlanName}}/'>-->detail</a> </div>
+{% empty %}
+<div>no plan in database.</div>
+{% endfor %}
+</div>
+
+</body>
+</html>

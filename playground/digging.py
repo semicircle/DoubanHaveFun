@@ -35,26 +35,34 @@ class Nemo:
             for item in self.collections:
                 self.items.append(item.subject)
     
-    def getMostCommonItem(self):
-        self.loadDataSet()
-        self.buildItemSet()
-        if not self.count_items:
-            self.count_items = {}
-            for item in self.items:
-                print 'item.id', item.id, item.title
-                if self.count_items.has_key(item.id):
-                    self.count_items[item.id] += 1
-                else:
-                    self.count_items[item.id] = 1
-        if not self.sorted_items:
-            self.sorted_items = sorted(self.count_items, 
-                    cmp = lambda x,y : self.count_items[y] - self.count_items[x])
-        return self.sorted_items
+
+class Nemo2():
+    map_collect_id = """
+        function() {
+            emit(this.subject['$id'], 1);
+        }
+    """
+
+    reduce_id_count = """
+        function(key, values) {
+            var total = 0;
+            for (var i=0; i<values.length; i++) {
+                total += values[i];
+            }
+            return total;
+       }
+    """
+
+    def getMostCommonItems(self):
+        results = Collection.objects.map_reduce(self.map_collect_id, self.reduce_id_count, "mostCommon")
+        results = sorted(list(results), key = lambda item: item.value)
+        return results
+
 
 def TestCase1():
     x = Nemo()
-    hot = x.getMostCommonItem()
-    print hot
+    #hot = x.getMostCommonItem()
+    #print hot
     #for i in range(0, 5):
     #    print hot[i], x.count_items[hot[i]]
 
